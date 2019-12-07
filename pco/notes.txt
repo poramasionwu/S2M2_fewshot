@@ -1,0 +1,2 @@
+chmod +x download_miniImagenet.sh
+./download_miniImagenet.sh

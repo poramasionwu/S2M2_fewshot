@@ -30,7 +30,7 @@ class MetaTemplate(nn.Module):
         return out
 
     def parse_feature(self,x,is_feature):
-        x    = Variable(x.cuda())
+        #x    = Variable(x.cuda()) #pco
         if is_feature:
             z_all = x
         else:

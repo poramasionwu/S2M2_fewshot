@@ -101,7 +101,12 @@ if __name__ == '__main__':
     if params.method == 'manifold_mixup' or params.method == 'S2M2_R':
         if torch.cuda.is_available():
             model = model.cuda()
-        tmp = torch.load(modelfile)
+            tmp = torch.load(modelfile)
+
+        else:
+            #source: https://discuss.pytorch.org/t/on-a-cpu-device-how-to-load-checkpoint-saved-on-gpu-device/349/6
+            tmp = torch.load(modelfile, map_location=lambda storage, location: storage)
+
         state = tmp['state']
         state_keys = list(state.keys())
         callwrap = False
@@ -139,7 +144,14 @@ if __name__ == '__main__':
 
 
 
-   
+    '''
+    Dropout and BatchNorm (and maybe some custom modules) behave differently during training and evaluation.
+    You must let the model know when to switch to eval mode by calling .eval() on the model.
+
+    This sets self.training to False for every module in the model. If you are implementing
+    your own module that must behave differently 
+    during training and evaluation, you can check the value of self.training while doing so.
+    '''
     model.eval()
 
     dirname = os.path.dirname(outfile)
