@@ -99,46 +99,49 @@ if __name__ == '__main__':
 
     print(checkpoint_dir , modelfile)
     if params.method == 'manifold_mixup' or params.method == 'S2M2_R':
-        if torch.cuda.is_available():
-            model = model.cuda()
-            tmp = torch.load(modelfile)
 
-        else:
-            #source: https://discuss.pytorch.org/t/on-a-cpu-device-how-to-load-checkpoint-saved-on-gpu-device/349/6
-            tmp = torch.load(modelfile, map_location=lambda storage, location: storage)
+        if modelfile is not None:
+            if torch.cuda.is_available():
+                model = model.cuda()
+                tmp = torch.load(modelfile)
 
-        state = tmp['state']
-        state_keys = list(state.keys())
-        callwrap = False
-        if 'module' in state_keys[0]:
-            callwrap = True
+            else:
+                #source: https://discuss.pytorch.org/t/on-a-cpu-device-how-to-load-checkpoint-saved-on-gpu-device/349/6
+                tmp = torch.load(modelfile, map_location=lambda storage, location: storage)
 
-        if callwrap:
-            model = WrappedModel(model) 
+            state = tmp['state']
+            state_keys = list(state.keys())
+            callwrap = False
+            if 'module' in state_keys[0]:
+                callwrap = True
 
-        model_dict_load = model.state_dict()
-        model_dict_load.update(state)
-        model.load_state_dict(model_dict_load)
+            if callwrap:
+                model = WrappedModel(model)
+
+            model_dict_load = model.state_dict()
+            model_dict_load.update(state)
+            model.load_state_dict(model_dict_load)
     
     else:
-        if torch.cuda.is_available():
-            model = model.cuda()
-        tmp = torch.load(modelfile)
-        state = tmp['state']
-        callwrap = False
-        state_keys = list(state.keys())
-        for i, key in enumerate(state_keys):
-            if 'module' in key and callwrap == False:
-                callwrap = True
-            if "feature." in key:
-                newkey = key.replace("feature.","")  # an architecture model has attribute 'feature', load architecture feature to backbone by casting name from 'feature.trunk.xx' to 'trunk.xx'  
-                state[newkey] = state.pop(key)
-            else:
-                state.pop(key)
-    
-        if callwrap:
-            model = WrappedModel(model) 
-        model.load_state_dict(state)   
+        if modelfile is not None:
+            if torch.cuda.is_available():
+                model = model.cuda()
+            tmp = torch.load(modelfile)
+            state = tmp['state']
+            callwrap = False
+            state_keys = list(state.keys())
+            for i, key in enumerate(state_keys):
+                if 'module' in key and callwrap == False:
+                    callwrap = True
+                if "feature." in key:
+                    newkey = key.replace("feature.","")  # an architecture model has attribute 'feature', load architecture feature to backbone by casting name from 'feature.trunk.xx' to 'trunk.xx'
+                    state[newkey] = state.pop(key)
+                else:
+                    state.pop(key)
+
+            if callwrap:
+                model = WrappedModel(model)
+            model.load_state_dict(state)
 
 
 

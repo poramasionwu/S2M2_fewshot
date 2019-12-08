@@ -432,22 +432,23 @@ if __name__ == '__main__':
 
         else:
             resume_rotate_file_dir = params.checkpoint_dir.replace("S2M2_R","rotation")
-            resume_file = get_resume_file( resume_rotate_file_dir )        
-            print("resume_file" , resume_file)
-            tmp = torch.load(resume_file)
-            start_epoch = tmp['epoch']+1
-            print("restored epoch is" , tmp['epoch'])
-            state = tmp['state']
-            state_keys = list(state.keys())
+            resume_file = get_resume_file( resume_rotate_file_dir )
+            if resume_file is not None:
+                print("resume_file" , resume_file)
+                tmp = torch.load(resume_file)
+                start_epoch = tmp['epoch']+1
+                print("restored epoch is" , tmp['epoch'])
+                state = tmp['state']
+                state_keys = list(state.keys())
 
-            for i, key in enumerate(state_keys):
-                if "feature." in key:
-                    newkey = key.replace("feature.","")  # an architecture model has attribute 'feature', load architecture feature to backbone by casting name from 'feature.trunk.xx' to 'trunk.xx'  
-                    state[newkey] = state.pop(key)
-                else:
-                    state[key.replace("classifier.","linear.")] =  state[key]
-                    state.pop(key)
-            model.load_state_dict(state)        
+                for i, key in enumerate(state_keys):
+                    if "feature." in key:
+                        newkey = key.replace("feature.","")  # an architecture model has attribute 'feature', load architecture feature to backbone by casting name from 'feature.trunk.xx' to 'trunk.xx'
+                        state[newkey] = state.pop(key)
+                    else:
+                        state[key.replace("classifier.","linear.")] =  state[key]
+                        state.pop(key)
+                model.load_state_dict(state)
     
         model = train_s2m2(base_loader, base_loader_test, val_loader,  model, start_epoch, start_epoch+stop_epoch, params , {})
 

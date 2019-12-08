@@ -84,7 +84,10 @@ if __name__ == '__main__':
     if params.dataset == 'CUB':
         n_query = 15
     else:
+        #pco
+        #n_query = 30 - params.n_shot
         n_query = 600 - params.n_shot
+        n_query = 5
 
     print(novel_file)
     print("evaluating over %d examples"%(n_query))

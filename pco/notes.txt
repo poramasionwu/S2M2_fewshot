@@ -1,2 +1,23 @@
-chmod +x download_miniImagenet.sh
-./download_miniImagenet.sh
+pip3 install torch
+pip3 install torchvision
+pip3 install  h5py
+
+#chmod +x download_miniImagenet.sh
+#./download_miniImagenet.sh
+
+#training
+#see io_utils.py for commandline args
+
+#first download the dataset and name the folder 'images'
+cd filelists/palm/
+python3 palm_setup.py
+python3 make_json.py
+
+
+python3 save_features.py --dataset palm --method S2M2_R --model WideResNet28_10 #--save_iter 2
+
+
+#chmod +x train.py
+#python3 train.py --dataset palm
+
+python3 test.py --dataset palm --method S2M2_R --model WideResNet28_10 --n_shot 3 #--n_shot 5
