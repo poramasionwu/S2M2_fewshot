@@ -26,8 +26,10 @@ class BaselineFinetune(MetaTemplate):
         y_support = torch.from_numpy(np.repeat(range( self.n_way ), self.n_support ))
 
         if use_gpu: #pco
-            print('baselinefinetune - y_support.cuda()')
+            print('baselinefinetune - y_support, z_support, z_query')
             y_support = Variable(y_support.cuda())
+            z_support = Variable(z_support.cuda())
+            z_query = Variable(z_query.cuda())
 
         if self.loss_type == 'softmax':
             linear_clf = nn.Linear(self.feat_dim, self.n_way)
