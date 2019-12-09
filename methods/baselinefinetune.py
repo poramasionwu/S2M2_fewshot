@@ -26,20 +26,24 @@ class BaselineFinetune(MetaTemplate):
         y_support = torch.from_numpy(np.repeat(range( self.n_way ), self.n_support ))
 
         if use_gpu: #pco
+            print('baselinefinetune - y_support.cuda()')
             y_support = Variable(y_support.cuda())
 
         if self.loss_type == 'softmax':
             linear_clf = nn.Linear(self.feat_dim, self.n_way)
         elif self.loss_type == 'dist':        
             linear_clf = backbone.distLinear(self.feat_dim, self.n_way)
+
         if use_gpu:  # pco
             linear_clf = linear_clf.cuda()
+            print('baselinefinetune - linear_clf.cuda()')
 
         set_optimizer = torch.optim.SGD(linear_clf.parameters(), lr = 0.01, momentum=0.9, dampening=0.9, weight_decay=0.001)
 
         loss_function = nn.CrossEntropyLoss()
         if use_gpu:  # pco
             loss_function = loss_function.cuda()
+            print('baselinefinetune - loss_function.cuda()')
         
         batch_size = 4
         support_size = self.n_way* self.n_support
@@ -51,9 +55,16 @@ class BaselineFinetune(MetaTemplate):
                 selected_id = torch.from_numpy( rand_id[i: min(i+batch_size, support_size) ])
                 if use_gpu:  # pco
                     selected_id = selected_id.cuda()
+                    print('baselinefinetune - selected_id.cuda()')
                 z_batch = z_support[selected_id]
-                y_batch = y_support[selected_id] 
-                scores = linear_clf(z_batch)
+                y_batch = y_support[selected_id]
+                if use_gpu:  # pco
+                    linear_clf = linear_clf.cuda()
+                    scores = linear_clf(z_batch)
+                    print('baselinefinetune - linear_clf(z_batch)')
+                else:
+                    scores = linear_clf(z_batch)
+
                 loss = loss_function(scores,y_batch)
                 loss.backward()
                 set_optimizer.step()

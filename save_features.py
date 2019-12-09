@@ -55,6 +55,9 @@ def save_features(model, data_loader, outfile ,params ):
     f.close()
 
 if __name__ == '__main__':
+    '''
+    Loads a previously trained model and saves the features (based on the new data) to disk
+    '''
     params = parse_args('save_features')
     
     if params.dataset == 'cifar':
@@ -63,8 +66,8 @@ if __name__ == '__main__':
         image_size = 80
 
 
-    split = params.split
-    loadfile = configs.data_dir[params.dataset] + split + '.json'
+    split = params.split #tests on Novel by default
+    loadfile = configs.data_dir[params.dataset] + split + '.json' #./filelists/palm/novel.json
 
     checkpoint_dir = '%s/checkpoints/%s/%s_%s' %(configs.save_dir, params.dataset, params.model, params.method)
     

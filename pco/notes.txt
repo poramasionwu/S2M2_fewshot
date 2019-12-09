@@ -40,10 +40,11 @@ cd filelists/CUB/
 ./download_CUB.sh
 python3 make_json.py
 
+#train (generate more and features for train and val set)
 cd ../../
-python3 train.py --dataset CUB --num_classes 200 #--resume
+python3 train.py --dataset CUB --num_classes 200 --start_epoch 0 --stop_epoch 400     #resume
 
-# try save model
+# try save model (creates features for novel set - or train, val if you want)
 python3 save_features.py --dataset CUB --method S2M2_R --model WideResNet28_10 #--save_iter 2
 
 #try test CUB
