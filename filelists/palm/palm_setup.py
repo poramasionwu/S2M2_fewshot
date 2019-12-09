@@ -6,6 +6,9 @@ import json
 import random
 import shutil
 import traceback
+import gdown
+
+#os.system('gdown https://drive.google.com/uc?id=1ri5qCLqjfgFKs1xif_xYcJqOmr0REe0x')
 
 cwd = os.getcwd()
 datadir = cwd.split('filelists')[0]

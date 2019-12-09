@@ -1,23 +1,81 @@
+** Setup
+
+sudo apt-get update && sudo apt-get upgrade
+sudo apt-get install htop
+sudo apt-get install ncdu #see storage
+sudo apt-get install unzip
+sudo apt install git
+
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt install python3.7
+python3.7 -m pip install --upgrade pip
+sudo apt-get install python3.7-venv
+
+git clone https://github.com/poramasionwu/S2M2_fewshot.git
+cd S2M2_fewshot
+chmod +x -R ./*
+python3.7 -m venv env
+source env/bin/activate #'deactivate'to end session
+which python3 #check env
+python3 --version
+
+# Now that you’re in your virtual environment you can install packages
+pip3 install pandas
 pip3 install torch
 pip3 install torchvision
 pip3 install  h5py
+pip3 install gdown
 
-#chmod +x download_miniImagenet.sh
-#./download_miniImagenet.sh
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
+sudo mv cuda-ubuntu1804.pin /etc/apt/preferences.d/cuda-repository-pin-600
+sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub
+sudo add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/ /"
+sudo apt-get update
+sudo apt-get -y install cuda
 
-#training
+
+
+#try training CUB
+cd filelists/CUB/
+./download_CUB.sh
+python3 make_json.py
+
+cd ../../
+python3 train.py --dataset CUB --num_classes 200 #--resume
+
+# try save model
+python3 save_features.py --dataset CUB --method S2M2_R --model WideResNet28_10 #--save_iter 2
+
+#try test CUB
+python3 test.py --dataset CUB --method S2M2_R --model WideResNet28_10 --n_shot 5 #--n_shot 5
+
+
+
+Palm testing -------------------------------------------------
 #see io_utils.py for commandline args
 
-#first download the dataset and name the folder 'images'
+#set up palm dataset
+gdown https://drive.google.com/uc?id=1ri5qCLqjfgFKs1xif_xYcJqOmr0REe0x
+unzip CASIA-PalmprintV1
+mv CASIA-PalmprintV1 images
+mkdir palm
+mv images palm
+mkdir Datasets
+mv palm Datasets
+
+
 cd filelists/palm/
 python3 palm_setup.py
 python3 make_json.py
 
+#try training palm
+python3 train.py --dataset palm --num_classes 624 #--resume
 
+#try save features
 python3 save_features.py --dataset palm --method S2M2_R --model WideResNet28_10 #--save_iter 2
 
+#try test palm
+python3 test.py --dataset palm --method S2M2_R --model WideResNet28_10 --n_shot 1 #--n_shot 5
 
-#chmod +x train.py
-#python3 train.py --dataset palm
 
-python3 test.py --dataset palm --method S2M2_R --model WideResNet28_10 --n_shot 3 #--n_shot 5
+
